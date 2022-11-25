@@ -3,20 +3,23 @@ import cv2 as cv
 import NDIlib as ndi
 import time
 from obswebsocket import obsws, requests
-
+from configparser import ConfigParser
 
 class TVAdBlocker:
     def __init__(self):
+        config = ConfigParser()
+        config.read("config.ini")
 
         # datos websocket
-        self.host = "localhost"
-        self.port = 4444
-        self.password = "secret"
+        self.host = config["websocket"]["host"]
+        self.port = config["websocket"]["port"]
+        self.password = config["websocket"]["password"]
         self.ws = obsws(self.host, self.port, self.password)
 
-        self.logo_path = "logo.png"  # logo a detectar
-        self.tv_scene = "Programa"  # escena de OBS donde se emite el programa
-        self.ad_scene = "Tanda"  # escena de OBS de lo que se va a mostrar durante la tanda publicitaria
+        self.logo_path = config["opencv"]["logo_path"]  # logo to detect
+        self.tv_scene = config["obs"]["tv_scene"]  # OBS scene where the TV program is
+        self.ad_scene = config["obs"]["ad_scene"]  # OBS scene to show during ads
+        self.threshold = float(config["opencv"]["threshold"])  # threshold to detect the logo
 
     def main(self):
         self.ws.connect()
@@ -64,7 +67,7 @@ class TVAdBlocker:
                 min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
 
                 # cv.imshow("ndi image", res)
-                if max_val > 0.5:
+                if max_val > self.threshold:
                     print("Logo detected")
                     self.ws.call(requests.SetCurrentScene(self.tv_scene))
                 else:
