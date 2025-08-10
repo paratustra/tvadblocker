@@ -1,20 +1,64 @@
-# TV Ad blocker
-TV Ad blocker using OBS Studio and OpenCV (simple logo detection using template matching)
+## TV Ad Blocker
 
-## Requirements
-- Python (3.7-3.10)
-- [OBS Studio](https://github.com/obsproject/obs-studio/releases/).
-- [OBS Websocket plugin](https://github.com/obsproject/obs-websocket/releases).
-- [obs-ndi plugin](https://github.com/Palakis/obs-ndi/releases/). Be sure to also download the NDI runtime.
-- Install the required packages with:
-- ```pip install -r requirements.txt```
+Simple TV ad blocker that switches OBS scenes based on logo detection in the top‑right corner. Uses NDI for video input and OpenCV template matching to detect when the channel logo is visible (program) vs faded/absent (ad break).
 
-## Usage
-1. Run OBS Studio and create two scenes:
-    - **tv**: This is the scene that will be shown when there is no ad
-    - **adbreak**: This is the scene that will be shown when an ad is detected. Put anything you want here, a cute video, or a message saying "Ad break".
-    - Add the NDI filter to the **tv** scene.
-2. Install the OBS Websocket plugin and configure it to use the default port (4444), and enable authentication (default script password is "secret"). Restart OBS and start the websocket server.
-3. Replace ```logo.png``` with the logo of the channel you want to block ads from. You can use any image format supported by OpenCV.
-4. Set the config file (```config.ini```) to your liking.
-5. Run the script: ```python main.py```
+### Requirements
+
+- Python 3.8+
+- OBS Studio
+- OBS WebSocket (v4) enabled
+- obs-ndi plugin + NDI runtime
+
+Install Python deps:
+
+```bash
+pip install -r requirements.txt
+```
+
+### OBS Setup
+
+1. Create two scenes:
+   - `tv`: main program
+   - `adbreak`: what to show during ads (e.g., a calm video)
+2. Add the NDI source/filter to the `tv` scene.
+3. Enable OBS WebSocket on port 4444 with a password.
+
+### Configure
+
+Edit `config.ini`:
+
+```ini
+[websocket]
+host = localhost
+port = 4444
+password = secret
+
+[opencv]
+logo_path = logo.png
+threshold = 0.5
+interval_seconds = 1.0
+roi_width_ratio = 0.25
+roi_height_ratio = 0.25
+
+[obs]
+tv_scene = tv
+ad_scene = adbreak
+```
+
+- `threshold`: higher means stricter logo match.
+- `interval_seconds`: how often to sample frames.
+- `roi_*_ratio`: size of top‑right region of interest.
+
+Replace `logo.png` with the channel logo (cropped and clear works best).
+
+### Run
+
+```bash
+python main.py --config config.ini --log-level INFO
+```
+
+### Notes
+
+- The script reads the NDI top‑right ROI to speed up matching.
+- Scenes are switched via OBS WebSocket `SetCurrentScene`.
+- Stop with Ctrl+C.
