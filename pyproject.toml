@@ -47,7 +47,10 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.mypy]
-python_version = "3.10"
+# Runtime floor is 3.10 (see requires-python); 3.12 is the mypy check target
+# because NumPy 2.5's bundled stubs use the 3.12 `type` statement.
+python_version = "3.12"
+mypy_path = "src"
 packages = ["tvadblocker"]
 strict = true
 # The native NDI/OBS bindings ship no type stubs.
@@ -57,4 +60,5 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 addopts = "-q"

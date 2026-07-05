@@ -15,7 +15,7 @@ hard-won correctness rules:
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import NDIlib as ndi
 import numpy as np
@@ -81,7 +81,7 @@ class NDISource:
             # The finder is only needed to locate a source.
             ndi.find_destroy(finder)
 
-    def _find_source(self, finder: object):
+    def _find_source(self, finder: Any) -> Any:
         """Block until a matching source appears and return it."""
         wanted = self._config.source_name.strip().lower()
         while True:
@@ -101,7 +101,7 @@ class NDISource:
                 ", ".join(s.p_ndi_name for s in sources),
             )
 
-    def read(self, timeout_ms: int | None = None) -> NDArray[np.uint8] | None:
+    def read(self, timeout_ms: int | None = None) -> NDArray[Any] | None:
         """Capture one video frame as an owned BGRA copy, or ``None``.
 
         Returns ``None`` on timeout or non-video frames (status change / error),
@@ -124,7 +124,7 @@ class NDISource:
         finally:
             ndi.recv_free_video_v2(self._recv, video)
 
-    def read_latest(self, timeout_ms: int | None = None) -> NDArray[np.uint8] | None:
+    def read_latest(self, timeout_ms: int | None = None) -> NDArray[Any] | None:
         """Return the freshest available frame, draining any backlog.
 
         Blocks up to ``timeout_ms`` for the first frame, then non-blockingly

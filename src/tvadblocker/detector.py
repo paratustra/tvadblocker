@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import cv2 as cv
 import numpy as np
@@ -44,7 +44,7 @@ class State(Enum):
     AD = "ad"
 
 
-def _split_template(logo: NDArray[np.uint8]) -> tuple[NDArray[np.uint8], NDArray[np.uint8]]:
+def _split_template(logo: NDArray[Any]) -> tuple[NDArray[Any], NDArray[Any]]:
     """Return (grayscale template, match mask) for a loaded logo image.
 
     The mask restricts matching to the visible part of the logo: the alpha
@@ -65,8 +65,8 @@ class LogoDetector:
 
     def __init__(self, config: DetectionConfig) -> None:
         self._config = config
-        self._template: NDArray[np.uint8] | None = None
-        self._mask: NDArray[np.uint8] | None = None
+        self._template: NDArray[Any] | None = None
+        self._mask: NDArray[Any] | None = None
         # Nothing to rescale when no capture width is configured.
         self._scaled = config.logo_capture_width == 0
 
@@ -115,7 +115,7 @@ class LogoDetector:
         x = max(0, width - roi_w)
         return x, 0, roi_w, roi_h
 
-    def score(self, frame: NDArray[np.uint8]) -> float | None:
+    def score(self, frame: NDArray[Any]) -> float | None:
         """Return the best match score in ``[0, 1]`` for the top-right ROI.
 
         ``None`` means the frame could not be scored (e.g. the ROI is smaller
@@ -142,7 +142,7 @@ class LogoDetector:
         return float(max_val)
 
 
-def _to_gray(frame: NDArray[np.uint8]) -> NDArray[np.uint8]:
+def _to_gray(frame: NDArray[Any]) -> NDArray[Any]:
     """Convert a BGRA/BGR/gray frame to single-channel grayscale."""
     if frame.ndim == 2:
         return frame
