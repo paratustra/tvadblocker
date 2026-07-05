@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tvadblocker"
+version = "0.2.0"
+description = "Switch OBS scenes automatically by detecting a broadcast channel logo over NDI."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Francisco Parata" }]
+keywords = ["obs", "ndi", "opencv", "template-matching", "broadcast", "ad-blocker"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Video",
+    "Environment :: Console",
+]
+dependencies = [
+    "ndi-python>=6.0.0",
+    "numpy>=1.23",
+    "opencv-python-headless>=4.6",
+    "obsws-python>=1.8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[project.scripts]
+tvadblocker = "tvadblocker.cli:main"
+
+[project.urls]
+Repository = "https://github.com/paratustra/tvadblocker"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.10"
+packages = ["tvadblocker"]
+strict = true
+# The native NDI/OBS bindings ship no type stubs.
+[[tool.mypy.overrides]]
+module = ["NDIlib.*", "cv2.*", "obsws_python.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
