@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install tooling
+        # The native NDI/OBS bindings need hardware and are not importable in
+        # CI; tests only touch the pure logic (config, detector, state machine),
+        # and mypy treats the native imports as untyped. So we install just the
+        # testable dependencies and the dev tools.
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy opencv-python-headless ruff mypy pytest
+      - name: Ruff
+        run: ruff check src/ tests/
+      - name: Mypy
+        run: mypy
+      - name: Pytest
+        run: pytest
