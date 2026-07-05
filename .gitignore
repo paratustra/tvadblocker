@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ruff
+.ruff_cache/
+
+# Local runtime config (may contain the OBS WebSocket password).
+# Copy config.example.ini to config.ini and edit it. The example is tracked.
+config.ini
+*.local.ini
